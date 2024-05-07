@@ -27,11 +27,26 @@ async function run() {
         await client.connect();
 
         // Get the database and collection on which to run the operation
+        const usersCollection = client.db("BistroDB").collection("users");
         const menuCollection = client.db("BistroDB").collection("menu");
         const reviewsCollection = client.db("BistroDB").collection("reviews");
         const cartsCollection = client.db("BistroDB").collection("carts");
 
+        //users collections
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const query = { email: user.email };
+            const existingUser = await usersCollection.findOne(query);
+            console.log('existing user', existingUser);
+            if (existingUser) {
+                return res.send({ message: "user already exists." })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
 
+        //menu related apis/////
         app.get('/menu', async (req, res) => {
             const result = await menuCollection.find().toArray();
             res.send(result)
@@ -41,7 +56,7 @@ async function run() {
             res.send(result)
         })
 
-        //carts collection----------------
+        //carts collection---------------- 
         app.post('/carts', async (req, res) => {
             const item = req.body;
             // console.log(item);
