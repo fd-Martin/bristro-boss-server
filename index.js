@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 //middleware
 app.use(cors());
@@ -32,7 +33,12 @@ async function run() {
         const reviewsCollection = client.db("BistroDB").collection("reviews");
         const cartsCollection = client.db("BistroDB").collection("carts");
 
+        //
         //users collections
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+        })
         app.post('/users', async (req, res) => {
             const user = req.body;
             console.log(user);
@@ -45,6 +51,20 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         })
+
+        app.patch('/users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                },
+            };
+            const result = await usersCollection.updateOne(filter, updatedDoc);
+            res.send(result)
+        })
+
+        app.delete('/users/admin')
 
         //menu related apis/////
         app.get('/menu', async (req, res) => {
