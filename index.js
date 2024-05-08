@@ -33,7 +33,12 @@ async function run() {
         const reviewsCollection = client.db("BistroDB").collection("reviews");
         const cartsCollection = client.db("BistroDB").collection("carts");
 
-        //
+        //jwt 
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.Access_token_secret, { expiresIn: '1h' })
+            res.send({ token })
+        })
         //users collections
         app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray();
